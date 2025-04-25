@@ -17,7 +17,8 @@ private func goto(scene windowScene: UIWindowScene) -> UIWindow {
     case 2:
         groundVcc = un12()
     case 3:
-        groundVcc = un12su()
+       // groundVcc = un12su()
+        groundVcc = UIViewController()
     case 4:
         groundVcc = un13su()
     case 5:

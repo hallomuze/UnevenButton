@@ -5,6 +5,7 @@
 //  Created by muzna on 4/25/25.
 //
 
+/*
 import SwiftUI
 import UIKit
 class un12su: UIViewController {
@@ -63,3 +64,4 @@ struct ContentView_v4: View {
 #Preview {
     ContentView_v4()
 }
+*/

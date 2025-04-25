@@ -15,14 +15,14 @@ class un12: UIViewController {
         view.backgroundColor = .white
 
         let gridSegmentControl1 = GridSegmentControlV4()
-        gridSegmentControl1.setTitles(titles: ["A", "B", "C", "D"])
+      //  gridSegmentControl1.setTitles(titles: ["A", "B", "C", "D"])
         gridSegmentControl1.setActionHandler { index in
             print("Segment 1 tapped: \(index)")
         }
         gridSegmentControl1.setSelectedSegmentIndex(index: 0)
 
         let gridSegmentControl2 = GridSegmentControlV4()
-        gridSegmentControl2.setTitles(titles: ["1", "2", "3", "4"])
+      //  gridSegmentControl2.setTitles(titles: ["1", "2", "3", "4"])
         gridSegmentControl2.setActionHandler { index in
             print("Segment 2 tapped: \(index)")
         }
@@ -150,15 +150,19 @@ class GridSegmentControlV4: UIView {
         horizontalSeparator?.frame = CGRect(x: bounds.minX, y: bounds.midY - separatorLineWidth / 2, width: bounds.width, height: separatorLineWidth)
     }
 
-    func setTitles(titles: [String]) {
+    func setTitles(titles: SegmentSelection) {
         guard titles.count == 4 else {
             print("Error: Titles array must contain exactly 4 strings.")
             return
         }
-        topLeftButton.setTitle(titles[0], for: .normal)
-        topRightButton.setTitle(titles[1], for: .normal)
-        bottomLeftButton.setTitle(titles[2], for: .normal)
-        bottomRightButton.setTitle(titles[3], for: .normal)
+        topLeftButton.setTitle(titles[.priceSurge]?.name, for: .normal)
+        topRightButton.setTitle(titles[.buysellSurge]?.name, for: .normal)
+        bottomLeftButton.setTitle(titles[.volSurge]?.name, for: .normal)
+        bottomRightButton.setTitle(titles[.buyFlow]?.name, for: .normal)
+        
+//        topRightButton.setTitle(titles[1], for: .normal)
+//        bottomLeftButton.setTitle(titles[2], for: .normal)
+//        bottomRightButton.setTitle(titles[3], for: .normal)
     }
 
     func setActionHandler(handler: @escaping (Int) -> Void) {

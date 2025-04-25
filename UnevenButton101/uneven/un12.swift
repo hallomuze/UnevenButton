@@ -10,7 +10,7 @@ import UIKit
 // MARK: - SwiftUI Wrapper (if needed)
 struct GridSegmentControlSwiftUI: UIViewRepresentable {
     @Binding var selectedIndex: Int
-    var titles: [String]
+    var titles: SegmentSelection
 
     func makeUIView(context: Context) -> GridSegmentControlV4 {
         let control = GridSegmentControlV4()
