@@ -60,24 +60,9 @@ class vm13: ObservableObject {
     @MainActor
     func fetchStatus() async {
         try? await Task.sleep(for: .seconds(0.1))
-        await fetchAgain()
-//        segmentStatus[.priceSurge] = SegmentStatus(name: "겁나비싸", isActive: false)
-//        segmentStatus[.buysellSurge] = SegmentStatus(name: "사는겁급등", isActive: false)
-//        segmentStatus[.volSurge] = SegmentStatus(name: "거래량폭등", isActive: false)
-//        segmentStatus[.buyFlow] = SegmentStatus(name: "엄청사네", isActive: false)
-//        
-//        let apiFetched = [SurgingKind.priceSurge, SurgingKind.volSurge]
-//        
-//        apiFetched.forEach { surge in
-//            segmentStatus[surge]?.isActive = true
-//        }
-       
-    }
-    
-    // api fetch mock
-    public func fetchAgain() async {
+        
         let apiFetched = SurgingKind.allCases
-        let count = Int.random(in: 2...3)
+        let count = Int.random(in: 1...4)
         let newDataSource = apiFetched.shuffled().prefix(count)
         
         var newSegmentStatus = getDefaultDataSource()
@@ -133,7 +118,7 @@ struct ContentView_13: View {
                 .padding()
 
             Button("call api again", action: {
-                Task { await viewModel.fetchAgain() }
+                Task { await viewModel.fetchStatus() }
             }).buttonStyle(.borderedProminent) //.buttonBorderShape(RoundedRectangle(cornerRadius: 5))
              
             Text("Selected Segment 2: \(segmentTitles2[selectedSegment2])")
