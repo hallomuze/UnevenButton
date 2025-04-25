@@ -7,6 +7,34 @@
 
 import UIKit
 
+let currentVersion = 3
+
+private func goto(scene windowScene: UIWindowScene) -> UIWindow {
+    let groundVcc: UIViewController
+    switch currentVersion {
+    case 1:
+        groundVcc = un11()
+    case 2:
+        groundVcc = un12()
+    case 3:
+        groundVcc = un12su()
+    case 4:
+        groundVcc = UIViewController()
+    case 5:
+        groundVcc = UIViewController()
+   
+    case 7:
+        groundVcc = UIViewController()
+        
+    default:
+        groundVcc = UIViewController()
+    }
+    let window = UIWindow(windowScene: windowScene)
+
+    window.rootViewController = groundVcc
+    window.makeKeyAndVisible()
+    return window
+}
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     var window: UIWindow?
@@ -16,9 +44,10 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // Use this method to optionally configure and attach the UIWindow `window` to the provided UIWindowScene `scene`.
         // If using a storyboard, the `window` property will automatically be initialized and attached to the scene.
         // This delegate does not imply the connecting scene or session are new (see `application:configurationForConnectingSceneSession` instead).
-        guard let _ = (scene as? UIWindowScene) else { return }
+        guard let windowScene = (scene as? UIWindowScene) else { return }
+        self.window = goto(scene: windowScene)
     }
-
+ 
     func sceneDidDisconnect(_ scene: UIScene) {
         // Called as the scene is being released by the system.
         // This occurs shortly after the scene enters the background, or when its session is discarded.
@@ -49,4 +78,3 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
 
 }
-
