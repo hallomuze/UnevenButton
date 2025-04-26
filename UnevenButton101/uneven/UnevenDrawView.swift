@@ -11,14 +11,14 @@ struct UnevenDrawView: View {
     var body: some View {
         VStack {
             WindowGridV3(rows: 2, columns: 2)
-//                       .stroke(Color.gray, lineWidth: 2) // 선 색과 두께
-                       .frame(width: 200, height: 200) // 크기 지정
-//                       .padding()
+            //                       .stroke(Color.gray, lineWidth: 2) // 선 색과 두께
+                .frame(width: 200, height: 200) // 크기 지정
+            //                       .padding()
             
             WindowGridV1(rows: 2, columns: 2)
-                       .stroke(Color.gray, lineWidth: 2) // 선 색과 두께
-                       .frame(width: 200, height: 200) // 크기 지정
-                       .padding()
+                .stroke(Color.gray, lineWidth: 2) // 선 색과 두께
+                .frame(width: 200, height: 200) // 크기 지정
+                .padding()
         }
     }
 }
@@ -33,44 +33,67 @@ struct WindowGridV3: View {
     var body: some View {
         ZStack {
             // 전체 격자 기본 선 (회색)
-            GridLines(rows: rows, columns: columns)
-                .stroke(Color.gray.opacity(0.4), lineWidth: 2)
-            
+//            GridLines(rows: rows, columns: columns)
+//                .stroke(Color.gray.opacity(0.4), lineWidth: 2)
+            GridLines(rows: 2, columns: 2, cornerRadius: 10, borderColor: .blue, lineWidth: 2)
+                .frame(width: 200, height: 200)
+
             // 강조할 특정 선 (빨간색)
-            HighlightedGridLine(rows: rows, columns: columns)
-                .stroke(Color.black, lineWidth: 2)
+            HighlightedGridLine(
+                rows: rows,
+                columns: columns,
+                segmentIndex: 3
+            )
+            .stroke(Color.black, lineWidth: 2)
         }
     }
 }
 
-struct GridLines: Shape {
+struct GridLines: View {
     var rows: Int
     var columns: Int
+    var cornerRadius: CGFloat = 8
+    var borderColor: Color = .black
+    var lineWidth: CGFloat = 1
     
-    func path(in rect: CGRect) -> Path {
-        var path = Path()
-        let rowHeight = rect.height / CGFloat(rows)
-        let columnWidth = rect.width / CGFloat(columns)
-        
-        for row in 0...rows {
-            let y = CGFloat(row) * rowHeight
-            path.move(to: CGPoint(x: rect.minX, y: y))
-            path.addLine(to: CGPoint(x: rect.maxX, y: y))
+    var body: some View {
+        GeometryReader { geometry in
+            let width = geometry.size.width
+            let height = geometry.size.height
+            let columnWidth = width / CGFloat(columns)
+            let rowHeight = height / CGFloat(rows)
+            
+            ZStack {
+                // 내부 라인
+                Path { path in
+                    for row in 1..<rows {
+                        let y = CGFloat(row) * rowHeight
+                        path.move(to: CGPoint(x: 0, y: y))
+                        path.addLine(to: CGPoint(x: width, y: y))
+                    }
+                    
+                    for column in 1..<columns {
+                        let x = CGFloat(column) * columnWidth
+                        path.move(to: CGPoint(x: x, y: 0))
+                        path.addLine(to: CGPoint(x: x, y: height))
+                    }
+                }
+                .stroke(borderColor, lineWidth: lineWidth)
+
+                // 외곽 테두리
+                RoundedRectangle(cornerRadius: cornerRadius)
+                    .stroke(borderColor, lineWidth: lineWidth)
+            }
         }
-        
-        for column in 0...columns {
-            let x = CGFloat(column) * columnWidth
-            path.move(to: CGPoint(x: x, y: rect.minY))
-            path.addLine(to: CGPoint(x: x, y: rect.maxY))
-        }
-        
-        return path
     }
 }
+
+// 2 x 2
 struct HighlightedGridLine: Shape {
     var rows: Int
     var columns: Int
-
+    
+    var segmentIndex: Int /* topleft, topright, bottomleft, bottomright */
     func path(in rect: CGRect) -> Path {
         var path = Path()
         
@@ -78,27 +101,66 @@ struct HighlightedGridLine: Shape {
         let columnWidth = rect.width / CGFloat(columns)
         
         // 첫 번째 셀의 좌상단 기준점
-        let startX = rect.minX
-        let startY = rect.minY
-        let endX = startX + columnWidth
-        let endY = startY + rowHeight
+        let startX: CGFloat
+        let startY: CGFloat
+        let endX: CGFloat
+        let endY: CGFloat
+        
+        switch segmentIndex {
+        case 0:
+            // 첫 번째 셀의 좌상단 기준점
+            startX = rect.minX
+            startY = rect.minY
+            endX = startX + columnWidth
+            endY = startY + rowHeight
+            
+        case 1: // x 의 시작점만 다르다.
+            // 첫 번째 셀의 좌상단 기준점
+            startX = columnWidth
+            startY = rect.minY
+            endX = rect.maxX
+            endY = startY + rowHeight
+            
+        case 2: // Bottom Left
+            startX = rect.minX
+            startY = rect.maxY - rowHeight
+            endX = startX + columnWidth
+            endY = rect.maxY
+            
+        case 3: // Bottom Right
+            startX = rect.maxX - columnWidth
+            startY = rect.maxY - rowHeight
+            endX = rect.maxX
+            endY = rect.maxY
+        default:
+            // 첫 번째 셀의 좌상단 기준점
+            startX = rect.minX
+            startY = rect.minY
+            endX = startX + columnWidth
+            endY = startY + rowHeight
+        }
         
         // top 선
-        path.move(to: CGPoint(x: startX, y: startY))
-        path.addLine(to: CGPoint(x: endX, y: startY))
-        
-        // left 선
-        path.move(to: CGPoint(x: startX, y: startY))
-        path.addLine(to: CGPoint(x: startX, y: endY))
-        
-        // right 선
-        path.move(to: CGPoint(x: endX, y: startY))
-        path.addLine(to: CGPoint(x: endX, y: endY))
-        
-        // bottom 선
-        path.move(to: CGPoint(x: startX, y: endY))
-        path.addLine(to: CGPoint(x: endX, y: endY))
-        
+        //        path.move(to: CGPoint(x: startX, y: startY))
+        //        path.addLine(to: CGPoint(x: endX, y: startY))
+        //
+        //        // left 선
+        //        path.move(to: CGPoint(x: startX, y: startY))
+        //        path.addLine(to: CGPoint(x: startX, y: endY))
+        //
+        //        // right 선
+        //        path.move(to: CGPoint(x: endX, y: startY))
+        //        path.addLine(to: CGPoint(x: endX, y: endY))
+        //
+        //        // bottom 선
+        //        path.move(to: CGPoint(x: startX, y: endY))
+        //        path.addLine(to: CGPoint(x: endX, y: endY))
+        // 선택된 셀의 4면 테두리를 그림
+        path.move(to: CGPoint(x: startX, y: startY)) // top-left
+        path.addLine(to: CGPoint(x: endX, y: startY)) // top-right
+        path.addLine(to: CGPoint(x: endX, y: endY)) // bottom-right
+        path.addLine(to: CGPoint(x: startX, y: endY)) // bottom-left
+        path.addLine(to: CGPoint(x: startX, y: startY)) // 다시 top-left
         return path
     }
 }
