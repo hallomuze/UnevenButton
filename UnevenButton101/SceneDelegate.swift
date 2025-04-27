@@ -7,8 +7,9 @@
 
 import UIKit
 import SwiftUI
+import UIs
 
-let currentVersion = 5
+let currentVersion = 7
 
 private func goto(scene windowScene: UIWindowScene) -> UIWindow {
     let groundVcc: UIViewController
@@ -25,9 +26,14 @@ private func goto(scene windowScene: UIWindowScene) -> UIWindow {
     case 5:
         let suview = UIHostingController(rootView: UnevenDrawView())
         groundVcc = suview
-   
+    case 6:
+        
+        let suview = UIHostingController(rootView: UnevenGridView())
+        groundVcc = suview
     case 7:
-        groundVcc = UIViewController()
+        
+        let suview =   UseGrid() 
+        groundVcc = suview
         
     default:
         groundVcc = UIViewController()

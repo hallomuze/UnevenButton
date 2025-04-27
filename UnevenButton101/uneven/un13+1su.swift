@@ -53,7 +53,7 @@ class vm13: ObservableObject {
     //    @Published var styles: [Style] = []
 //    @Published var selectedStyle: Style = .priceSurge
     
-    @Published var segmentStatus = [SurgingKind: SegmentStatus]()
+    @Published var segmentStatus = SegmentSelection()
     
     private var datasource = [SurgingKind]()
     
@@ -87,7 +87,6 @@ class vm13: ObservableObject {
     }
 }
 
-typealias SegmentSelection = [SurgingKind: SegmentStatus]
 struct ContentView_13: View {
     @StateObject var viewModel = vm13()
     @State private var selectedSegment1 = 0
