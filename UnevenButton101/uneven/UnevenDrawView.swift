@@ -10,15 +10,9 @@ import SwiftUI
 struct UnevenDrawView: View {
     var body: some View {
         VStack {
-            WindowGridV3(rows: 2, columns: 2)
-            //                       .stroke(Color.gray, lineWidth: 2) // 선 색과 두께
+            WindowGridV3(segmentIndex: 0, rows: 2, columns: 2) 
                 .frame(width: 200, height: 200) // 크기 지정
-            //                       .padding()
             
-            WindowGridV1(rows: 2, columns: 2)
-                .stroke(Color.gray, lineWidth: 2) // 선 색과 두께
-                .frame(width: 200, height: 200) // 크기 지정
-                .padding()
         }
     }
 }
@@ -27,28 +21,35 @@ struct UnevenDrawView: View {
     UnevenDrawView()
 }
 struct WindowGridV3: View {
-    var rows: Int
-    var columns: Int
-    
+    @State var segmentIndex: Int
+    let rows: Int
+    let columns: Int
+
+    var selectedCorner: UIRectCorner {
+        switch segmentIndex {
+        case 0: return .topLeft
+        case 1: return .topRight
+        case 2: return .bottomLeft
+        case 3: return .bottomRight
+        default: return .topLeft // fallback
+        }
+    }
+
     var body: some View {
         ZStack {
             // 전체 격자 기본 선 (회색)
-//            GridLines(rows: rows, columns: columns)
-//                .stroke(Color.gray.opacity(0.4), lineWidth: 2)
-            GridLines(rows: 2, columns: 2, cornerRadius: 10, borderColor: .blue, lineWidth: 2)
+            GridLines(rows: 2, columns: 2, cornerRadius: 10, borderColor: .gray, lineWidth: 1)
                 .frame(width: 200, height: 200)
 
-            // 강조할 특정 선 (빨간색)
             HighlightedGridLine(
-                rows: rows,
-                columns: columns,
-                segmentIndex: 3
+                rows: 2,
+                columns: 2,
+                corner: selectedCorner // ← 여기를 변경
             )
-            .stroke(Color.black, lineWidth: 2)
+            .stroke(Color.red, lineWidth: 1)
         }
     }
 }
-
 struct GridLines: View {
     var rows: Int
     var columns: Int
@@ -87,9 +88,58 @@ struct GridLines: View {
         }
     }
 }
+import SwiftUI
+
+struct HighlightedGridLine: Shape {
+    var rows: Int
+    var columns: Int 
+    var corner: UIRectCorner // 하나의 코너만 적용
+
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+
+        let rowHeight = rect.height / CGFloat(rows)
+        let columnWidth = rect.width / CGFloat(columns)
+
+        let startX: CGFloat
+        let startY: CGFloat
+
+        switch corner {
+        case .topLeft: // TopLeft
+            startX = rect.minX
+            startY = rect.minY
+        case .topRight: // TopRight
+            startX = rect.minX + columnWidth
+            startY = rect.minY
+        case .bottomLeft: // BottomLeft
+            startX = rect.minX
+            startY = rect.minY + rowHeight
+        case .bottomRight: // BottomRight
+            startX = rect.minX + columnWidth
+            startY = rect.minY + rowHeight
+        default:
+            // should not reach to this line
+            startX = rect.minX
+            startY = rect.minY
+        }
+
+        let cellRect = CGRect(x: startX, y: startY, width: columnWidth, height: rowHeight)
+
+        let radius = CGSize(width: 8, height: 8)
+        let bezierPath = UIBezierPath(
+            roundedRect: cellRect,
+            byRoundingCorners: corner,
+            cornerRadii: radius
+        )
+
+        path.addPath(Path(bezierPath.cgPath))
+
+        return path
+    }
+}
 
 // 2 x 2
-struct HighlightedGridLine: Shape {
+struct HighlightedGridLinexx: Shape {
     var rows: Int
     var columns: Int
     
