@@ -10,8 +10,9 @@ import Foundation
 public enum SurgingKind: CaseIterable {
     case priceSurge, buysellSurge, volSurge, buyFlow
 }
+
 public struct SegmentStatus {
-    let defaultName: String
+    private let defaultName: String
     var name: String {
         // !isActive ? defaultName : "🔥\(defaultName)"
         defaultName
@@ -26,7 +27,7 @@ public struct SegmentStatus {
 
 public typealias SegmentSelection = [SurgingKind: SegmentStatus]
 
-class vm14: ObservableObject {
+final class vm14: ObservableObject {
     
     @Published var segmentStatus = SegmentSelection()
     
@@ -52,7 +53,7 @@ class vm14: ObservableObject {
         }
     }
     
-    func getDefaultDataSource() -> SegmentSelection {
+    private func getDefaultDataSource() -> SegmentSelection {
         var newSegmentStatus = [SurgingKind: SegmentStatus]()
         newSegmentStatus[.priceSurge] = SegmentStatus(name: "겁나비싸", isActive: false)
         newSegmentStatus[.buysellSurge] = SegmentStatus(name: "사는겁급등", isActive: false)

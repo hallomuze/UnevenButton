@@ -8,7 +8,7 @@
 import UIKit
 import SwiftUI
  
-public class UseGrid: UIViewController {
+public final class UseGrid: UIViewController {
     public init() {
         super.init(nibName: nil, bundle: nil)
     }

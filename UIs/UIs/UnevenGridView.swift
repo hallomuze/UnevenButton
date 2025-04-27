@@ -6,30 +6,14 @@
 //
 
 import SwiftUI
-
-//public struct UnevenGridView: View {
-//    public init() { }
-//    public var body: some View {
-//        VStack {
-//            Text("innner framework v1")
-//            WindowGridV3(segmentIndex: 0, rows: 2, columns: 2)
-//                .frame(height: 100) // 크기 지정
-//                .frame(maxWidth: .infinity)
-//                .padding()
-//        }
-//    }
-//}
-
-//#Preview {
-//    UnevenGridView()
-//}
-public struct WindowGridV3: View {
-    @Binding var gridIndex: Int
-    @Binding var titles: SegmentSelection
+ 
+internal struct WindowGridV3: View {
+    @Binding private var gridIndex: Int
+    @Binding private var titles: SegmentSelection
     private let rows: Int
     private let columns: Int
     private let selectColor = Color.black
-    private let unselectedColr = Color.gray
+    private let unselectedColor = Color.gray
     private let boderWidth = CGFloat(1)
     private var selectedCorner: UIRectCorner {
         switch gridIndex {
@@ -49,7 +33,13 @@ public struct WindowGridV3: View {
     public var body: some View {
         ZStack {
             // 전체 격자 (회색)
-            GridLines(rows: 2, columns: 2, cornerRadius: 10, borderColor: unselectedColr, lineWidth: boderWidth)
+            GridLines(
+                rows: 2,
+                columns: 2,
+                cornerRadius: 8,
+                borderColor: unselectedColor,
+                lineWidth: boderWidth
+            )
             
             // 선택영역 격자
             HighlightedGridLine(
@@ -62,64 +52,64 @@ public struct WindowGridV3: View {
             VStack {
                 HStack {
                     SementButton(
+                        selectedIndex: $gridIndex,
                         title: titles[.priceSurge]?.name,
                         segmentIndex: 0,
                         isSelected: gridIndex == 0,
                         backgroundColor: .red,
-                        hasIcon: titles[.priceSurge]?.isActive,
-                        selectedIndex: $gridIndex
+                        hasIcon: titles[.priceSurge]?.isActive
                     )
                     SementButton(
+                        selectedIndex: $gridIndex,
                         title: titles[.buysellSurge]?.name,
                         segmentIndex: 1,
                         isSelected: gridIndex == 1,
                         backgroundColor: .orange,
-                        hasIcon: titles[.buysellSurge]?.isActive,
-                        selectedIndex: $gridIndex
+                        hasIcon: titles[.buysellSurge]?.isActive
                     )
                 }
                 HStack {
                     SementButton(
+                        selectedIndex: $gridIndex,
                         title: titles[.volSurge]?.name,
                         segmentIndex: 2,
                         isSelected: gridIndex == 2,
                         backgroundColor: .purple,
-                        hasIcon: titles[.volSurge]?.isActive,
-                        selectedIndex: $gridIndex
+                        hasIcon: titles[.volSurge]?.isActive
                     )
                     SementButton(
+                        selectedIndex: $gridIndex,
                         title: titles[.buyFlow]?.name,
                         segmentIndex: 3,
                         isSelected: gridIndex == 3,
                         backgroundColor: .blue,
-                        hasIcon: titles[.buyFlow]?.isActive,
-                        selectedIndex: $gridIndex
+                        hasIcon: titles[.buyFlow]?.isActive
                     )
-                    
                 }
             }
         }
     }
 }
-struct SementButton: View {
-    private let title: String?
+internal struct SementButton: View {
+    @Binding private var selectedIndex: Int
+    private let title: String
     private let segmentIndex: Int
     private let isSelected: Bool
     private let backgroundColor: Color
     private let hasIcon: Bool
-    @Binding var selectedIndex: Int // 외부에서 값을 변경할 수 있도록 @Binding 사용
     private var textColor: Color {
+        // FIXME: 변경
         isSelected ? .red : .gray.opacity(0.2)
     }
     private let useBackground = false
     
-    public init(title: String?, segmentIndex: Int, isSelected: Bool, backgroundColor: Color, hasIcon: Bool?, selectedIndex: Binding<Int>) {
-        self.title = title
+    public init(selectedIndex: Binding<Int>, title: String?, segmentIndex: Int, isSelected: Bool, backgroundColor: Color, hasIcon: Bool?) {
+        self._selectedIndex = selectedIndex
+        self.title = title ?? "no title"
         self.segmentIndex = segmentIndex
         self.isSelected = isSelected
         self.backgroundColor = backgroundColor
         self.hasIcon = hasIcon ?? false
-        self._selectedIndex = selectedIndex
     }
     var body: some View {
         Button(action: {
@@ -127,7 +117,7 @@ struct SementButton: View {
         }, label: {
             HStack(spacing: 0) {
                 if hasIcon {
-                    Image(systemName: "flame")
+                    Image(systemName: "flame") // FIXME: 이미지변경
                         .foregroundColor(textColor)
                 }
                 Text(title ?? "default title")
@@ -139,7 +129,7 @@ struct SementButton: View {
     }
 }
 
-struct GridLines: View {
+internal struct GridLines: View {
     private let rows: Int
     private let columns: Int
     private var cornerRadius: CGFloat = 8
@@ -188,7 +178,7 @@ struct GridLines: View {
     }
 }
 
-struct HighlightedGridLine: InsettableShape {
+internal struct HighlightedGridLine: InsettableShape {
     private let rows: Int
     private let columns: Int
     private let corner: UIRectCorner // 하나의 코너만 적용
@@ -199,7 +189,10 @@ struct HighlightedGridLine: InsettableShape {
         self.columns = columns
         self.corner = corner
     }
-    
+    /*
+     private로 선언불가
+     Method 'path(in:)' must be as accessible as its enclosing type because it matches a requirement in protocol 'Shape'
+     */
     internal func path(in rect: CGRect) -> Path {
         var path = Path()
         
@@ -247,7 +240,7 @@ struct HighlightedGridLine: InsettableShape {
         return path
     }
     
-    // ⭐️ InsettableShape 필수 메서드
+    // ⭐️ InsettableShape 필수 메서드 - private로 선언불가
     internal func inset(by amount: CGFloat) -> some InsettableShape {
         var copy = self
         copy.insetAmount += amount
