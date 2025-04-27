@@ -61,12 +61,40 @@ public struct WindowGridV3: View {
             
             VStack {
                 HStack {
-                    SementButton(title: titles[.priceSurge]?.name, segmentIndex: 0, isActive: gridIndex == 0, backgroundColor: .red, selectedIndex: $gridIndex)
-                    SementButton(title: titles[.buysellSurge]?.name, segmentIndex: 1, isActive: gridIndex == 1, backgroundColor: .orange, selectedIndex: $gridIndex)
+                    SementButton(
+                        title: titles[.priceSurge]?.name,
+                        segmentIndex: 0,
+                        isSelected: gridIndex == 0,
+                        backgroundColor: .red,
+                        hasIcon: titles[.priceSurge]?.isActive,
+                        selectedIndex: $gridIndex
+                    )
+                    SementButton(
+                        title: titles[.buysellSurge]?.name,
+                        segmentIndex: 1,
+                        isSelected: gridIndex == 1,
+                        backgroundColor: .orange,
+                        hasIcon: titles[.buysellSurge]?.isActive,
+                        selectedIndex: $gridIndex
+                    )
                 }
                 HStack {
-                    SementButton(title: titles[.volSurge]?.name, segmentIndex: 2, isActive: gridIndex == 2, backgroundColor: .purple, selectedIndex: $gridIndex)
-                    SementButton(title: titles[.buyFlow]?.name, segmentIndex: 3, isActive: gridIndex == 3, backgroundColor: .blue, selectedIndex: $gridIndex)
+                    SementButton(
+                        title: titles[.volSurge]?.name,
+                        segmentIndex: 2,
+                        isSelected: gridIndex == 2,
+                        backgroundColor: .purple,
+                        hasIcon: titles[.volSurge]?.isActive,
+                        selectedIndex: $gridIndex
+                    )
+                    SementButton(
+                        title: titles[.buyFlow]?.name,
+                        segmentIndex: 3,
+                        isSelected: gridIndex == 3,
+                        backgroundColor: .blue,
+                        hasIcon: titles[.buyFlow]?.isActive,
+                        selectedIndex: $gridIndex
+                    )
                     
                 }
             }
@@ -76,29 +104,37 @@ public struct WindowGridV3: View {
 struct SementButton: View {
     private let title: String?
     private let segmentIndex: Int
-    private let isActive: Bool
+    private let isSelected: Bool
     private let backgroundColor: Color
+    private let hasIcon: Bool
+    @Binding var selectedIndex: Int // 외부에서 값을 변경할 수 있도록 @Binding 사용
     private var textColor: Color {
-        isActive ? .red : .gray.opacity(0.2)
+        isSelected ? .red : .gray.opacity(0.2)
     }
     private let useBackground = false
-    @Binding var selectedIndex: Int // 외부에서 값을 변경할 수 있도록 @Binding 사용
     
-    public init(title: String?, segmentIndex: Int, isActive: Bool, backgroundColor: Color, selectedIndex: Binding<Int>) {
+    public init(title: String?, segmentIndex: Int, isSelected: Bool, backgroundColor: Color, hasIcon: Bool?, selectedIndex: Binding<Int>) {
         self.title = title
         self.segmentIndex = segmentIndex
-        self.isActive = isActive
+        self.isSelected = isSelected
         self.backgroundColor = backgroundColor
+        self.hasIcon = hasIcon ?? false
         self._selectedIndex = selectedIndex
     }
     var body: some View {
         Button(action: {
             selectedIndex = segmentIndex
         }, label: {
-            Text(title ?? "default title")
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .background(useBackground ? backgroundColor.opacity(0.1) : backgroundColor.opacity(0))
-                .foregroundColor(textColor)
+            HStack(spacing: 0) {
+                if hasIcon {
+                    Image(systemName: "flame")
+                        .foregroundColor(textColor)
+                }
+                Text(title ?? "default title")
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .background(useBackground ? backgroundColor.opacity(0.1) : backgroundColor.opacity(0))
+                    .foregroundColor(textColor)
+            }
         })
     }
 }

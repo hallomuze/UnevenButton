@@ -13,7 +13,8 @@ public enum SurgingKind: CaseIterable {
 public struct SegmentStatus {
     let defaultName: String
     var name: String {
-        !isActive ? defaultName : "🔥\(defaultName)"
+        // !isActive ? defaultName : "🔥\(defaultName)"
+        defaultName
     }
     var isActive: Bool
     
@@ -33,7 +34,7 @@ class vm14: ObservableObject {
     
     @MainActor
     func fetchStatus() async {
-//        try? await Task.sleep(for: .seconds(0.1))
+        //        try? await Task.sleep(for: .seconds(0.1))
         
         let apiFetched = SurgingKind.allCases
         let count = Int.random(in: 1...4)
