@@ -59,7 +59,7 @@ class vm13: ObservableObject {
     
     @MainActor
     func fetchStatus() async {
-        try? await Task.sleep(for: .seconds(0.1))
+//        try? await Task.sleep(for: .seconds(0.1))
         
         let apiFetched = SurgingKind.allCases
         let count = Int.random(in: 1...4)
@@ -119,7 +119,8 @@ struct ContentView_13: View {
 
             Button("call api again", action: {
                 Task { await viewModel.fetchStatus() }
-            }).buttonStyle(.borderedProminent) //.buttonBorderShape(RoundedRectangle(cornerRadius: 5))
+            })
+//            .buttonStyle(.borderedProminent) //.buttonBorderShape(RoundedRectangle(cornerRadius: 5))
              
             Text("Selected Segment 2: \(segmentTitles2[selectedSegment2])")
                 .font(.headline)

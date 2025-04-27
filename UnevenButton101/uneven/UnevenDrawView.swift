@@ -11,8 +11,9 @@ struct UnevenDrawView: View {
     var body: some View {
         VStack {
             WindowGridV3(segmentIndex: 0, rows: 2, columns: 2) 
-                .frame(width: 350, height: 100) // 크기 지정
-            
+                .frame(height: 100) // 크기 지정
+                .frame(maxWidth: .infinity)
+                .padding() 
         }
     }
 }
@@ -24,7 +25,9 @@ struct WindowGridV3: View {
     @State var segmentIndex: Int
     let rows: Int
     let columns: Int
-    let touchLineColor = Color.black
+    let selectColor = Color.black
+    let unselectedColr = Color.gray
+    let boderWidth = CGFloat(1)
     var selectedCorner: UIRectCorner {
         switch segmentIndex {
         case 0: return .topLeft
@@ -38,17 +41,16 @@ struct WindowGridV3: View {
     var body: some View {
         ZStack {
             // 전체 격자 (회색)
-            GridLines(rows: 2, columns: 2, cornerRadius: 10, borderColor: .gray, lineWidth: 1)
-              //  .frame(width: 200, height: 200)
-
+            GridLines(rows: 2, columns: 2, cornerRadius: 10, borderColor: unselectedColr, lineWidth: boderWidth)
+              
             // 선택영역 격자
             HighlightedGridLine(
                 rows: 2,
                 columns: 2,
                 corner: selectedCorner // ← 여기를 변경
             )
-            .stroke(touchLineColor, lineWidth: 1)
-            
+            .strokeBorder(selectColor, lineWidth: boderWidth)
+ 
             VStack {
                 HStack {
                     SementButton(title: "00", segmentIndex: 0, backgroundColor: .red, selectedIndex: $segmentIndex)
@@ -67,6 +69,7 @@ struct SementButton: View {
     let title: String
     let segmentIndex: Int
     let backgroundColor: Color
+    let useBackground = false
     @Binding var selectedIndex: Int // 외부에서 값을 변경할 수 있도록 @Binding 사용
 
     var body: some View {
@@ -74,9 +77,8 @@ struct SementButton: View {
             selectedIndex = segmentIndex
         }, label: {
             Text(title)
-               // .padding(40)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .background(backgroundColor.opacity(0.1))
+                .background(useBackground ? backgroundColor.opacity(0.1) : backgroundColor.opacity(0))
         })
     }
 }
@@ -113,18 +115,24 @@ struct GridLines: View {
                 .stroke(borderColor, lineWidth: lineWidth)
 
                 // 외곽 테두리
+//                RoundedRectangle(cornerRadius: cornerRadius)
+//                    .stroke(borderColor, lineWidth: lineWidth)
                 RoundedRectangle(cornerRadius: cornerRadius)
-                    .stroke(borderColor, lineWidth: lineWidth)
+                    .strokeBorder(borderColor, lineWidth: lineWidth)
+
             }
         }
     }
 }
 import SwiftUI
 
-struct HighlightedGridLine: Shape {
+import SwiftUI
+
+struct HighlightedGridLine: InsettableShape {
     var rows: Int
     var columns: Int
     var corner: UIRectCorner // 하나의 코너만 적용
+    var insetAmount: CGFloat = 0 // InsettableShape 필수
 
     func path(in rect: CGRect) -> Path {
         var path = Path()
@@ -135,26 +143,32 @@ struct HighlightedGridLine: Shape {
         let startX: CGFloat
         let startY: CGFloat
 
+        // ⭐️ 코너별로 시작점만 inset 적용
         switch corner {
-        case .topLeft: // TopLeft
-            startX = rect.minX
-            startY = rect.minY
-        case .topRight: // TopRight
+        case .topLeft:
+            startX = rect.minX + insetAmount
+            startY = rect.minY + insetAmount
+        case .topRight:
             startX = rect.minX + columnWidth
-            startY = rect.minY
-        case .bottomLeft: // BottomLeft
-            startX = rect.minX
+            startY = rect.minY + insetAmount
+        case .bottomLeft:
+            startX = rect.minX + insetAmount
             startY = rect.minY + rowHeight
-        case .bottomRight: // BottomRight
+        case .bottomRight:
             startX = rect.minX + columnWidth
             startY = rect.minY + rowHeight
         default:
-            // should not reach to this line
             startX = rect.minX
             startY = rect.minY
         }
 
-        let cellRect = CGRect(x: startX, y: startY, width: columnWidth, height: rowHeight)
+        // ⭐️ width, height는 절대 줄이지 않고 그대로 사용
+        let cellRect = CGRect(
+            x: startX,
+            y: startY,
+            width: columnWidth - 1,
+            height: rowHeight - 1
+        )
 
         let radius = CGSize(width: 8, height: 8)
         let bezierPath = UIBezierPath(
@@ -164,8 +178,14 @@ struct HighlightedGridLine: Shape {
         )
 
         path.addPath(Path(bezierPath.cgPath))
-
         return path
+    }
+
+    // ⭐️ InsettableShape 필수 메서드
+    func inset(by amount: CGFloat) -> some InsettableShape {
+        var copy = self
+        copy.insetAmount += amount
+        return copy
     }
 }
 
