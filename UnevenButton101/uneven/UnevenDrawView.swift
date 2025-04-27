@@ -11,7 +11,7 @@ struct UnevenDrawView: View {
     var body: some View {
         VStack {
             WindowGridV3(segmentIndex: 0, rows: 2, columns: 2) 
-                .frame(width: 200, height: 200) // 크기 지정
+                .frame(width: 350, height: 100) // 크기 지정
             
         }
     }
@@ -24,7 +24,7 @@ struct WindowGridV3: View {
     @State var segmentIndex: Int
     let rows: Int
     let columns: Int
-
+    let touchLineColor = Color.black
     var selectedCorner: UIRectCorner {
         switch segmentIndex {
         case 0: return .topLeft
@@ -37,19 +37,50 @@ struct WindowGridV3: View {
 
     var body: some View {
         ZStack {
-            // 전체 격자 기본 선 (회색)
+            // 전체 격자 (회색)
             GridLines(rows: 2, columns: 2, cornerRadius: 10, borderColor: .gray, lineWidth: 1)
-                .frame(width: 200, height: 200)
+              //  .frame(width: 200, height: 200)
 
+            // 선택영역 격자
             HighlightedGridLine(
                 rows: 2,
                 columns: 2,
                 corner: selectedCorner // ← 여기를 변경
             )
-            .stroke(Color.red, lineWidth: 1)
+            .stroke(touchLineColor, lineWidth: 1)
+            
+            VStack {
+                HStack {
+                    SementButton(title: "00", segmentIndex: 0, backgroundColor: .red, selectedIndex: $segmentIndex)
+                    SementButton(title: "11", segmentIndex: 1, backgroundColor: .orange, selectedIndex: $segmentIndex)
+                }
+                HStack {
+                    SementButton(title: "2222", segmentIndex: 2, backgroundColor: .purple, selectedIndex: $segmentIndex)
+                    SementButton(title: "3333", segmentIndex: 3, backgroundColor: .blue, selectedIndex: $segmentIndex)
+ 
+                }
+            }
         }
     }
 }
+struct SementButton: View {
+    let title: String
+    let segmentIndex: Int
+    let backgroundColor: Color
+    @Binding var selectedIndex: Int // 외부에서 값을 변경할 수 있도록 @Binding 사용
+
+    var body: some View {
+        Button(action: {
+            selectedIndex = segmentIndex
+        }, label: {
+            Text(title)
+               // .padding(40)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(backgroundColor.opacity(0.1))
+        })
+    }
+}
+ 
 struct GridLines: View {
     var rows: Int
     var columns: Int
@@ -92,7 +123,7 @@ import SwiftUI
 
 struct HighlightedGridLine: Shape {
     var rows: Int
-    var columns: Int 
+    var columns: Int
     var corner: UIRectCorner // 하나의 코너만 적용
 
     func path(in rect: CGRect) -> Path {
